@@ -26,13 +26,13 @@
               board)))
 
 (def tetriminos
-  {:I [[0 1] [0 0] [0 -1] [0 -2]]
-   :J [[0 -1] [0 0] [1 0] [2 0]]
-   :L [[-2 0] [-1 0] [0 0] [0 -1]]
-   :O [[0 -1] [0 0] [1 0] [1 -1]]
-   :S [[-1 0] [0 0] [0 -1] [1 -1]]
-   :Z [[0 1] [0 0] [0 -1] [-1 -1]]
-   :T [[0 0] [-1 0] [1 0] [0 -1]]})
+  {:I  [ [-1  0]  [ 0  0]  [ 1  0]  [ 2  0] ]
+   :T  [ [ 0 -1]  [-1  0]  [ 0  0]  [ 1  0] ]
+   :O  [ [ 0 -1]  [ 1 -1]  [ 0  0]  [ 1  0] ]
+   :J  [ [-1 -1]  [-1  0]  [ 0  0]  [ 1  0] ]
+   :L  [ [ 1 -1]  [-1  0]  [ 0  0]  [ 1  0] ]
+   :S  [ [ 0 -1]  [ 1 -1]  [-1  0]  [ 0  0] ]
+   :Z  [ [-1 -1]  [ 0 -1]  [ 0  0]  [ 1  0] ]})
 
 (defn new-game
   "Constructs a new instance of the game state."
@@ -40,7 +40,7 @@
   (let [board (new-board)]
     {:board board
      :tetrimino (rand-nth (vals tetriminos))
-     :position [(quot (count (first board)) 2) 1]}))
+     :position [(dec (quot (count (first board)) 2)) 1]}))
 
 (defn render-game
   [{:keys [board tetrimino position]}]
