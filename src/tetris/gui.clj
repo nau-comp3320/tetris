@@ -58,18 +58,19 @@
 
 (defn ^:private render-tetrimino!
   "Draws the tetrimino at the given position"
-  [render-block tetrimino position]
-  (dorun (map (fn [offset]
-                (let [[x y] (map + position offset)]
-                  (render-block x y :yellow)))
-              tetrimino)))
+  [render-block game]
+  (dorun (map (fn [[x y]] (render-block x y (if (tetris/has-collision? game)
+                                              :red
+                                              :yellow
+                                              )))
+              (tetris/tetrimino-positions game))))
 
 (defn ^:private render-game!
   "Draws the given game state to the canvas using the graphics context."
-  [canvas graphics {:keys [board tetrimino position]}]
+  [canvas graphics {:keys [board] :as game}]
   (let [render-block (make-block-renderer canvas graphics board)]
     (render-board! render-block board)
-    (render-tetrimino! render-block tetrimino position)))
+    (render-tetrimino! render-block game)))
 
 (defn ^:private add-behaviours
   "Takes a game user interface and adds the dynamic behaviours for the game.
@@ -78,10 +79,11 @@
   (seesaw/listen (seesaw/select root [:#new-game])
                  :action  (fn [_] (reset! game-atom (tetris/new-game))))
   (doto root
-    (keymap/map-key "W" (fn [_] (println "rotate!")))
-    (keymap/map-key "A" (fn [_] (swap! game-atom update-in [:position 0] dec)))
-    (keymap/map-key "S" (fn [_] (swap! game-atom update-in [:position 1] inc)))
-    (keymap/map-key "D" (fn [_] (swap! game-atom update-in [:position 0] inc)))
+    (keymap/map-key "W" (fn [_] (swap! game-atom tetris/move-if-valid tetris/rotate-tetrimino)))
+    (keymap/map-key "A" (fn [_] (swap! game-atom tetris/move-if-valid tetris/move-left)))
+    (keymap/map-key "S" (fn [_] (swap! game-atom tetris/move-if-valid tetris/move-down)))
+    (keymap/map-key "D" (fn [_] (swap! game-atom tetris/move-if-valid tetris/move-right)))
+    (keymap/map-key "P" (fn [_] (swap! game-atom tetris/drop-tetrimino)))
     (seesaw/listen :window-closing (fn [_] (remove-watch game-atom :gui))))
   (let [canvas (seesaw/select root [:#canvas])]
     (seesaw/config! canvas
